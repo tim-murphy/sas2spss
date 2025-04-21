@@ -1,4 +1,4 @@
-# import pyreadstat
+import pyreadstat
 import argparse
 import glob
 import os
@@ -44,19 +44,43 @@ if __name__ == '__main__':
         sys.exit(1)
 
     files_copied = 0
+    failures = []   # (filename, error)
     for sas in glob.glob(os.path.join(args.input_dir, "*.sas7bdat")):
         file_root = os.path.splitext(os.path.split(sas)[1])[0]
         outfile = os.path.join(args.output_dir, file_root + ".sav")
 
-        print("Copyting ", sas, " to ", outfile, "...", sep="", end="", flush=True)
-        # df, _ = pyreadstat.read_file_multiprocessing(pyreadstat.read_sas7bdat, sas)
-        # pyreadstat.write_sav(df, outfile, file_label=file_root)
-        print("done")
+        if os.path.exists(outfile):
+            print("Skipping file as it already exists:", outfile)
+            continue
 
-        files_copied += 1
+        print("Copying ", sas, " to ", outfile, "...", sep="", end="", flush=True)
+        try:
+            df, _ = pyreadstat.read_file_multiprocessing(pyreadstat.read_sas7bdat, sas)
+
+            # Some columns start with an underscore, which is not allowed by write_sav.
+            cols_clean = []
+            for col in df.columns:
+                if col[0] == "_":
+                    cols_clean.append("v" + col)
+                else:
+                    cols_clean.append(col)
+            df.columns = cols_clean
+
+            pyreadstat.write_sav(df, outfile, file_label=file_root)
+            files_copied += 1
+            print("done")
+        except pyreadstat._readstat_parser.PyreadstatError as e:
+            failures.append((file_root, str(e)))
+            print("!!! FAILED !!!")
 
     print(files_copied, "files copied to", args.output_dir)
     print()
+
+    if len(failures) > 0:
+        print("The following files could not be copied:")
+        for (path, err) in failures:
+            print("   ", path, "::", err)
+
     print("All done! Have a nice day :)")
 
 # EOF
