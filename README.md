@@ -5,10 +5,11 @@ This script converts a directory of SAS data files (sas7bdat format) to SPSS dat
 There is some error checking though it is limited.
 The script does not convert files in subdirectories.
 
-Tested on Python version 3.13 on Windows 11.
+Tested on Python 3.13 on Windows 11 and Python 3.12 on Gentoo.
 
 ## Install (easy version)
-Run `install.bat` (Windows only).
+Windows: run `install.bat`
+Linux: run `install.sh`
 
 ## Install (manual version)
 Install the required pip packages: `pip install -r requirements.txt`.
