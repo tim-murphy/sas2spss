@@ -9,6 +9,7 @@ Tested on Python 3.13 on Windows 11 and Python 3.12 on Gentoo.
 
 ## Install (easy version)
 Windows: run `install.bat`
+
 Linux: run `install.sh`
 
 ## Install (manual version)
