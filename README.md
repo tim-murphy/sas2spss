@@ -1,3 +1,5 @@
+[![Pylint](https://github.com/tim-murphy/sas2spss/actions/workflows/pylint.yml/badge.svg)](https://github.com/tim-murphy/sas2spss/actions/workflows/pylint.yml)
+
 # SAS to SPSS file converter
 This script converts a directory of SAS data files (sas7bdat format) to SPSS data files (sav format).
 There is some error checking though it is limited.
