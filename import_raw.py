@@ -36,6 +36,10 @@ if __name__ == '__main__':
                         help="Directory containing sas7bdat files")
     parser.add_argument("--output_dir", type=str, required=True,
                         help="Directory to save converted files")
+    parser.add_argument("--single_file", type=str, required=False,
+                        help="If set, will also (outer) merge into one giant file with this filename")
+    parser.add_argument("--merge_key", type=str, default="PID",
+                        help="If merging, use this as the merge key")
     args = parser.parse_args()
 
     # Error checking.
@@ -62,6 +66,7 @@ if __name__ == '__main__':
 
     files_copied: int = 0
     failures = []   # (filename, error)
+    merged = None
     for sas in glob.glob(os.path.join(args.input_dir, "*.sas7bdat")):
         file_root = os.path.splitext(os.path.split(sas)[1])[0]
         outfile = os.path.join(args.output_dir, file_root + ".sav")
