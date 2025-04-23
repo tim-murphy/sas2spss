@@ -42,6 +42,8 @@ if __name__ == '__main__':
                         help="If merging, use this as the merge key")
     parser.add_argument("--prefix_vars", default=True, action="store_true",
                         help="Add the filename as a prefix to variables")
+    parser.add_argument("--merge_type", type=str, default="outer",
+                        help="The type of merge (inner, outer, left, right)")
     args = parser.parse_args()
 
     # Error checking.
@@ -121,8 +123,8 @@ if __name__ == '__main__':
                     merged = df.copy(deep=True)
                 else:
                     try:
-                        merged = merged.merge(df, how="outer", on=args.merge_keys,
-                                              validate="one_to_one", sort=True)
+                        merged = merged.merge(df, on=args.merge_keys, sort=True,
+                                              validate="one_to_one", how=args.merge_type)
                     except Exception as e: # pylint: disable=broad-exception-caught
                         merge_failures.append((file_root, str(e)))
                         print("!!! FAILED TO MERGE !!!")
@@ -154,6 +156,7 @@ if __name__ == '__main__':
         except Exception as e: # pylint: disable=broad-exception-caught
             print()
             print("Error creating merged file: " + str(e), file=sys.stderr)
+            print(merged)
 
         print()
 
