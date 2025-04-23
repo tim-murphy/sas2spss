@@ -86,7 +86,7 @@ if __name__ == '__main__':
                     cols_clean.append("v" + col)
                 else:
                     cols_clean.append(col)
-            # df.columns = cols_clean
+            df.columns = cols_clean
 
             pyreadstat.write_sav(df, outfile, file_label=file_root)
             files_copied += 1
