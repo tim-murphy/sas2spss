@@ -30,6 +30,14 @@ def confirm_yes_no(text):
 
     return response == "y"
 
+def format_to_ext(output_format: str):
+    if output_format == "spss":
+        return ".sav"
+    elif output_format == "csv":
+        return ".csv"
+    else:
+        raise ValueError("No extension for format: " + output_format)
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("--input_dir", type=str, required=True,
@@ -43,7 +51,11 @@ if __name__ == '__main__':
     parser.add_argument("--prefix_vars", default=True, action="store_true",
                         help="Add the filename as a prefix to variables")
     parser.add_argument("--merge_type", type=str, default="outer",
-                        help="The type of merge (inner, outer, left, right)")
+                        choices=("inner", "outer", "left", "right"),
+                        help="The type of merge / join")
+    parser.add_argument("--output_format", type=str, default="spss",
+                        choices=("csv", "spss"),
+                        help="The output format")
     args = parser.parse_args()
 
     # Error checking.
@@ -78,7 +90,7 @@ if __name__ == '__main__':
         print("[", i+1, " / ", len(datfiles), "] ", sep="", end="", flush=True)
 
         file_root = os.path.splitext(os.path.split(sas)[1])[0]
-        outfile = os.path.join(args.output_dir, file_root + ".sav")
+        outfile = os.path.join(args.output_dir, file_root + format_to_ext(args.output_format))
 
         skip: bool = False
         if os.path.exists(outfile):
@@ -130,7 +142,14 @@ if __name__ == '__main__':
                         print("!!! FAILED TO MERGE !!!")
 
             if not skip:
-                pyreadstat.write_sav(df, outfile, file_label=file_root)
+                if args.output_format == "spss":
+                    pyreadstat.write_sav(df, outfile, file_label=file_root)
+                elif args.output_format == "csv":
+                    df.to_csv(outfile, encoding="utf-8", index=False, header=True)
+                else:
+                    # This should never happen.
+                    raise ValueError("Could not save file: invalid output format " + args.output_format)
+
                 files_copied += 1
                 print("done")
         except Exception as e: # pylint: disable=broad-exception-caught
