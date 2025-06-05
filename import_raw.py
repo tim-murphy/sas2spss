@@ -48,7 +48,7 @@ if __name__ == '__main__':
                         help="If set, will also (outer) merge into one file with this filename")
     parser.add_argument("--merge_keys", default=["ID"], nargs="+",
                         help="If merging, use this as the merge key")
-    parser.add_argument("--prefix_vars", default=True, action="store_true",
+    parser.add_argument("--prefix_vars", default=False, action="store_true",
                         help="Add the filename as a prefix to variables")
     parser.add_argument("--merge_type", type=str, default="outer",
                         choices=("inner", "outer", "left", "right"),
