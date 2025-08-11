@@ -31,12 +31,15 @@ def confirm_yes_no(text):
     return response == "y"
 
 def format_to_ext(output_format: str):
+    '''
+    For a given statistics program format, return the relevant file extension.
+    '''
     if output_format == "spss":
         return ".sav"
-    elif output_format == "csv":
+    if output_format == "csv":
         return ".csv"
-    else:
-        raise ValueError("No extension for format: " + output_format)
+
+    raise ValueError("No extension for format: " + output_format)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -56,6 +59,8 @@ if __name__ == '__main__':
     parser.add_argument("--output_format", type=str, default="spss",
                         choices=("csv", "spss"),
                         help="The output format")
+    parser.add_argument("--overwrite", action="store_true",
+                        help="Overwrite existing files")
     args = parser.parse_args()
 
     # Error checking.
@@ -93,9 +98,11 @@ if __name__ == '__main__':
         outfile = os.path.join(args.output_dir, file_root + format_to_ext(args.output_format))
 
         skip: bool = False
-        if os.path.exists(outfile):
+        if os.path.exists(outfile) and not args.overwrite:
             print("Skipping file as it already exists:", outfile)
             skip = True # pylint: disable=invalid-name
+        elif args.overwrite:
+            print("Overwriting ", sas, " to ", outfile, "...", sep="", end="", flush=True)
         else:
             print("Copying ", sas, " to ", outfile, "...", sep="", end="", flush=True)
 
@@ -148,7 +155,8 @@ if __name__ == '__main__':
                     df.to_csv(outfile, encoding="utf-8", index=False, header=True)
                 else:
                     # This should never happen.
-                    raise ValueError("Could not save file: invalid output format " + args.output_format)
+                    raise ValueError("Could not save file: invalid output format " +\
+                                     args.output_format)
 
                 files_copied += 1
                 print("done")
